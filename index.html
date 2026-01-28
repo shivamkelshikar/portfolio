@@ -542,68 +542,97 @@ View Demo Video
 </div>
 
 <script>
-const CLIENT_SECRET="VJTI2027SHIVAM";
-let edit=false,buffer="";
+const CLIENT_SECRET = "VJTI2027SHIVAM";
+let edit = false, buffer = "";
 
-/* LOAD SAVED DATA */
-window.onload=()=>{
-  document.querySelectorAll("[data-key]").forEach(el=>{
-    if(localStorage[el.dataset.key]) el.innerHTML=localStorage[el.dataset.key];
+/* ===== LOAD SAVED DATA ===== */
+window.onload = () => {
+  // Load simple text fields
+  document.querySelectorAll("[data-key]").forEach(el => {
+    if (localStorage[el.dataset.key]) {
+      el.innerHTML = localStorage[el.dataset.key];
+    }
   });
-  ["education","experience","projects","skills, certifications"].forEach(id=>{
-    if(localStorage[id]){
-      const card=document.getElementById(id);
-      card.querySelectorAll(".item,.project,.skill").forEach(e=>e.remove());
-      card.insertAdjacentHTML("beforeend",localStorage[id]);
+
+  // Load section-based content
+  ["education","experience","projects","skills","certifications"].forEach(id => {
+    if (localStorage[id]) {
+      const card = document.getElementById(id);
+      if (!card) return;
+
+      card.querySelectorAll(".item,.project,.skill").forEach(e => e.remove());
+      card.insertAdjacentHTML("beforeend", localStorage[id]);
     }
   });
 };
 
-/* SECRET UNLOCK */
-document.addEventListener("keydown",e=>{
-  buffer+=e.key;
-  if(buffer.length>CLIENT_SECRET.length) buffer=buffer.slice(-CLIENT_SECRET.length);
-  if(buffer===CLIENT_SECRET){toggleEdit();buffer="";}
+/* ===== SECRET UNLOCK ===== */
+document.addEventListener("keydown", e => {
+  buffer += e.key;
+  if (buffer.length > CLIENT_SECRET.length) {
+    buffer = buffer.slice(-CLIENT_SECRET.length);
+  }
+  if (buffer === CLIENT_SECRET) {
+    toggleEdit();
+    buffer = "";
+  }
 });
 
-function toggleEdit(){
-  edit=!edit;
-  document.querySelectorAll(".item,[data-key],.project,.skill")
-    .forEach(e=>e.contentEditable=edit);
+/* ===== TOGGLE EDIT MODE ===== */
+function toggleEdit() {
+  edit = !edit;
+
+  document.querySelectorAll(
+    "[data-key], .item b, .item span, .item p, .project b, .project p, .skill"
+  ).forEach(e => e.contentEditable = edit);
+
   document.querySelectorAll(".add-btn")
-    .forEach(b=>b.style.display=edit?"block":"none");
+    .forEach(b => b.style.display = edit ? "block" : "none");
 }
 
-/* AUTO SAVE */
-document.addEventListener("input",()=>{
-  document.querySelectorAll("[data-key]").forEach(el=>{
-    localStorage[el.dataset.key]=el.innerHTML;
+/* ===== AUTO SAVE ===== */
+document.addEventListener("input", () => {
+  // Save text fields
+  document.querySelectorAll("[data-key]").forEach(el => {
+    localStorage[el.dataset.key] = el.innerHTML;
   });
-  ["education","experience","projects","skills, certifications"].forEach(id=>{
-    const card=document.getElementById(id);
-    localStorage[id]=[...card.querySelectorAll(".item,.project,.skill")]
-      .map(e=>e.outerHTML).join("");
+
+  // Save sections
+  ["education","experience","projects","skills","certifications"].forEach(id => {
+    const card = document.getElementById(id);
+    if (!card) return;
+
+    localStorage[id] = [...card.querySelectorAll(".item,.project,.skill")]
+      .map(e => e.outerHTML)
+      .join("");
   });
 });
 
-/* ADD */
-function addItem(id){
-  const t=prompt("Enter content:");
-  if(!t)return;
-  const d=document.createElement("div");
-  d.className=id==="projects"?"project":"item";
-  d.contentEditable=true;
-  d.innerHTML=`<b>${t}</b>`;
-  document.getElementById(id).insertBefore(d,document.getElementById(id).lastElementChild);
+/* ===== ADD FUNCTIONS ===== */
+function addItem(id) {
+  const t = prompt("Enter title:");
+  if (!t) return;
+
+  const d = document.createElement("div");
+  d.className = id === "projects" ? "project" : "item";
+  d.contentEditable = true;
+  d.innerHTML = `<b>${t}</b><span>Edit details</span><p>Edit description</p>`;
+
+  document.getElementById(id)
+    .insertBefore(d, document.getElementById(id).lastElementChild);
+
   d.dispatchEvent(new Event("input"));
 }
-function addSkill(){
-  const s=prompt("Skill:");
-  if(!s)return;
-  const d=document.createElement("div");
-  d.className="skill";
-  d.contentEditable=true;
-  d.innerText=s;
+
+function addSkill() {
+  const s = prompt("Skill:");
+  if (!s) return;
+
+  const d = document.createElement("div");
+  d.className = "skill";
+  d.contentEditable = true;
+  d.innerText = s;
+
   document.querySelector("#skills .skills").appendChild(d);
   d.dispatchEvent(new Event("input"));
 }
@@ -611,4 +640,5 @@ function addSkill(){
 
 </body>
 </html>
+
 
